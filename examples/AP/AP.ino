@@ -1,4 +1,4 @@
-#include <TelnetServerLib.h>
+#include <Telnet.h>
 
 TelnetServerLib telnet;
 
