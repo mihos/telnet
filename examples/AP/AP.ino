@@ -1,6 +1,6 @@
-#include <TelnetServerLib.h>
+#include <Telnet.h>
 
-TelnetServerLib telnet;
+Telnet telnet;
 
 // Command handler to turn the LED on
 void ledOn(WiFiClient &client, const String &args) {
