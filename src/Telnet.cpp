@@ -2,7 +2,7 @@
 
 Telnet::Telnet() : telnetServer(nullptr), timeoutMillis(DEFAULT_TIMEOUT) {
     banner = defaultBanner;
-    prompt = "admin@esp>";
+    prompt = "root@esp:~$ ";
     addCommand("help", std::bind(&Telnet::showHelp, this, std::placeholders::_1, std::placeholders::_2), "Shows a list of available commands.");
 }
 
