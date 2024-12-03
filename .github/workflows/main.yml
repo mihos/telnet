@@ -41,6 +41,7 @@ jobs:
             echo "PR version is different from the main branch version."
           fi
 
+      # Merge the Pull Request
       - name: Merge Pull Request
         if: success()
         uses: actions/github-script@v6
@@ -53,8 +54,6 @@ jobs:
               pull_number: prNumber,
               merge_method: 'squash',
             });
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Create a Release
       - name: Create GitHub Release
