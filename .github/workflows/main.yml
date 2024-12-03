@@ -9,67 +9,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the PR Code
-    - name: Checkout PR Code
-      uses: actions/checkout@v3
+      # Checkout the PR Code
+      - name: Checkout PR Code
+        uses: actions/checkout@v3
 
-    # Extract the version from the PR
-    - name: Get Version from Pull Request
-      id: pr_version
-      run: |
-        pr_version=$(grep '^version=' library.properties | cut -d'=' -f2)
-        echo "PR version: $pr_version"
-        echo "::set-output name=pr_version::$pr_version"
+      # Extract the version from the PR
+      - name: Get Version from Pull Request
+        id: pr_version
+        run: |
+          pr_version=$(grep '^version=' library.properties | cut -d'=' -f2)
+          echo "PR version: $pr_version"
+          echo "pr_version=$pr_version" >> $GITHUB_ENV
 
-    # Fetch the main branch's library.properties
-    - name: Fetch Main Branch Version
-      run: |
-        git fetch origin main
-        git checkout origin/main -- library.properties
-        main_version=$(grep '^version=' library.properties | cut -d'=' -f2)
-        echo "Main version: $main_version"
-        echo "::set-output name=main_version::$main_version"
-      id: main_version
+      # Fetch the main branch's library.properties
+      - name: Fetch Main Branch Version
+        run: |
+          git fetch origin main
+          git checkout origin/main -- library.properties
+          main_version=$(grep '^version=' library.properties | cut -d'=' -f2)
+          echo "Main version: $main_version"
+          echo "main_version=$main_version" >> $GITHUB_ENV
 
-    # Compare Versions
-    - name: Compare Versions
-      id: compare_versions
-      run: |
-        if [ "${{ steps.pr_version.outputs.pr_version }}" = "${{ steps.main_version.outputs.main_version }}" ]; then
-          echo "PR version is the same as the main branch version."
-          exit 1
-        else
-          echo "PR version is different from the main branch version."
-        fi
+      # Compare Versions
+      - name: Compare Versions
+        id: compare_versions
+        run: |
+          if [ "$pr_version" = "$main_version" ]; then
+            echo "PR version is the same as the main branch version."
+            exit 1
+          else
+            echo "PR version is different from the main branch version."
+          fi
 
-    # Merge the Pull Request
-    - name: Merge Pull Request
-      if: ${{ steps.compare_versions.outcome == 'success' }}
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const { context, github } = require('@actions/github');
-          const prNumber = context.payload.pull_request.number;
-          await github.pulls.merge({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: prNumber,
-            merge_method: 'squash',
-          });
+      # Merge the Pull Request
+      - name: Merge Pull Request
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { context, github } = require('@actions/github');
+            const prNumber = context.payload.pull_request.number;
+            await github.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              merge_method: 'squash',
+            });
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # Create a Release
-    - name: Create GitHub Release
-      if: ${{ steps.compare_versions.outcome == 'success' }}
-      uses: actions/create-release@v1
-      with:
-        tag_name: v${{ steps.pr_version.outputs.pr_version }}
-        release_name: Release v${{ steps.pr_version.outputs.pr_version }}
-        body: |
-          **Changelog**
-          - Updated to version ${{ steps.pr_version.outputs.pr_version }}
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Create a Release
+      - name: Create GitHub Release
+        if: success()
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ env.pr_version }}
+          release_name: Release v${{ env.pr_version }}
+          body: |
+            **Changelog**
+            - Updated to version ${{ env.pr_version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
