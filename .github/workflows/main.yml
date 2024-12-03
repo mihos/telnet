@@ -1,4 +1,4 @@
-name: Check Library Version and Create Release
+name: Check Library Version, Merge PR, and Create Release
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the code
+    # Checkout the PR Code
     - name: Checkout PR Code
       uses: actions/checkout@v3
 
@@ -20,7 +20,7 @@ jobs:
         pr_version=$(grep '^version=' library.properties | cut -d'=' -f2)
         echo "::set-output name=pr_version::$pr_version"
 
-    # Fetch the main branch library.properties
+    # Fetch the main branch's library.properties
     - name: Fetch Main Branch Version
       run: |
         git fetch origin main
@@ -28,22 +28,37 @@ jobs:
         main_version=$(grep '^version=' library.properties | cut -d'=' -f2)
         echo "::set-output name=main_version::$main_version"
 
-    # Compare the versions
+    # Compare Versions
     - name: Compare Versions
       id: compare_versions
       run: |
         if [ "${{ steps.pr_version.outputs.pr_version }}" = "${{ steps.main_version.outputs.main_version }}" ]; then
           echo "PR version is the same as the main branch version."
-          echo "::set-output name=status::fail"
           exit 1
         else
           echo "PR version is different from the main branch version."
-          echo "::set-output name=status::pass"
         fi
 
-    # Create a release if the versions differ
+    # Merge the Pull Request
+    - name: Merge Pull Request
+      if: success()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { context, github } = require('@actions/github');
+          const prNumber = context.payload.pull_request.number;
+          await github.pulls.merge({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: prNumber,
+            merge_method: 'squash',
+          });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Create a Release
     - name: Create GitHub Release
-      if: steps.compare_versions.outputs.status == 'pass'
+      if: success()
       uses: actions/create-release@v1
       with:
         tag_name: v${{ steps.pr_version.outputs.pr_version }}
