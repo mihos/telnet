@@ -11,4 +11,4 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Arduino Library Deploy
-        uses: ktauchathuranga/arduino-library-deploy@v0.0.1
+        uses: ktauchathuranga/arduino-library-deploy@v0.0.2
