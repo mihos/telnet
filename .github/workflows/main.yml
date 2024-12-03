@@ -44,32 +44,24 @@ jobs:
       # Merge the Pull Request
       - name: Merge Pull Request
         if: success() && steps.compare_versions.outcome == 'success'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const prNumber = context.payload.pull_request.number;
+        run: |
+          PR_NUMBER=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
+          PR_TITLE=$(jq --raw-output .pull_request.title $GITHUB_EVENT_PATH)
       
-            // Check if 'github' is available in the context and then merge the PR
-            if (github) {
-              const prTitle = context.payload.pull_request.title;
+          echo "Merging PR #${PR_NUMBER} titled \"${PR_TITLE}\""
       
-              console.log(`Merging PR #${prNumber} titled "${prTitle}"`);
+          # GitHub API URL for merging the PR
+          API_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/merge"
       
-              // Use the GitHub API to merge the pull request
-              await github.pulls.merge({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                commit_title: `Merge PR #${prNumber} - ${prTitle}`,
-                merge_method: 'squash',  // Change to 'merge' or 'rebase' if needed
-              });
-            } else {
-              console.error('GitHub object not available.');
-              throw new Error('GitHub object not available.');
-            }
+          # Make API request to merge the pull request
+          curl -X PUT "${API_URL}" \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d '{"commit_title":"Merge PR #'"${PR_NUMBER}"' - '"${PR_TITLE}"'","merge_method":"squash"}'
+      
+          echo "Pull request #${PR_NUMBER} merged successfully."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
 
       # Create a Release
