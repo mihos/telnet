@@ -11,11 +11,11 @@ jobs:
     steps:
       # Checkout the PR Code
       - name: Checkout PR Code
-        run: |
-          git checkout ${{ github.sha }}
-      
+        uses: actions/checkout@v3
+
       # Extract the version from the PR
       - name: Get Version from Pull Request
+        id: pr_version
         run: |
           pr_version=$(grep '^version=' library.properties | cut -d'=' -f2)
           echo "PR version: $pr_version"
@@ -32,6 +32,7 @@ jobs:
 
       # Compare Versions
       - name: Compare Versions
+        id: compare_versions
         run: |
           if [ "$pr_version" = "$main_version" ]; then
             echo "PR version is the same as the main branch version."
@@ -62,28 +63,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Create a GitHub Release
+
+      # Create a Release
       - name: Create GitHub Release
         if: success()
-        run: |
-          TAG_NAME="v${{ env.pr_version }}"
-          RELEASE_NAME="Release v${{ env.pr_version }}"
-          BODY="**Changelog**\n- Updated to version ${{ env.pr_version }}"
-
-          API_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases"
-
-          # Make API request to create the release
-          curl -X POST "${API_URL}" \
-            -H "Authorization: token ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -d '{
-              "tag_name": "'"${TAG_NAME}"'",
-              "name": "'"${RELEASE_NAME}"'",
-              "body": "'"${BODY}"'",
-              "draft": false,
-              "prerelease": false
-            }'
-
-          echo "Release v${{ env.pr_version }} created successfully."
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ env.pr_version }}
+          release_name: Release v${{ env.pr_version }}
+          body: |
+            **Changelog**
+            - Updated to version ${{ env.pr_version }}
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
