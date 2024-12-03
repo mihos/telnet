@@ -41,13 +41,11 @@ jobs:
             echo "PR version is different from the main branch version."
           fi
 
-      # Merge the Pull Request
       - name: Merge Pull Request
         if: success()
         uses: actions/github-script@v6
         with:
           script: |
-            const { context, github } = require('@actions/github');
             const prNumber = context.payload.pull_request.number;
             await github.pulls.merge({
               owner: context.repo.owner,
