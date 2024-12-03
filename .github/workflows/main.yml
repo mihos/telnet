@@ -1,0 +1,49 @@
+name: Validate Library Version
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify-version:
+    name: Validate Version in `library.properties`
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Retrieve `library.properties` from the main branch
+      - name: Fetch Main Branch `library.properties`
+        run: |
+          git fetch origin main
+          git checkout origin/main -- library.properties
+
+      # Step 3: Extract and compare version numbers
+      - name: Compare Version Numbers
+        id: compare
+        run: |
+          # Extract the version from the incoming pull request
+          pr_version=$(grep '^version=' library.properties | cut -d'=' -f2)
+          
+          # Extract the version from the main branch
+          main_version=$(grep '^version=' library.properties | cut -d'=' -f2)
+          
+          echo "Incoming PR version: $pr_version"
+          echo "Main branch version: $main_version"
+
+          # Set the comparison result
+          if [ "$pr_version" = "$main_version" ]; then
+            echo "::set-output name=status::fail"
+          else
+            echo "::set-output name=status::pass"
+          fi
+
+      # Step 4: Enforce version difference
+      - name: Enforce Version Update
+        if: steps.compare.outputs.status == 'fail'
+        run: |
+          echo "Error: The version in 'library.properties' is unchanged. Please update the version to reflect the new changes."
+          exit 1
