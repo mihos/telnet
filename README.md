@@ -1,7 +1,8 @@
 # **Telnet**
 
 
-A lightweight and flexible library for implementing Telnet servers on ESP8266/ESP32-based devices. The library supports both Access Point (AP) and Client modes for seamless wireless communi cation. It allows you to create custom prompts, handle client connections, register commands, and manage Telnet sessions with ease. This library is ideal for controlling your ESP device over Telnewewt with custom commands and aliases.
+A lightweight and flexible library for implementing Telnet servers on ESP8266/ESP32-based devices. The library supports both Access Point (AP) and Client modes for seamless wireless communi cation. It allows you to create custofdm prompts, handle client connections, register commands, and manage Telnet sessions with ease. This library is ideal for controlling your ESP device over Telnewewt with custom commands and aliases.
+
 
 ## **Feature
 
@@ -197,4 +198,4 @@ Feel free to fork this repository and submit pull requests with improvements, bu
 
 ## **License**
 
-This library is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
