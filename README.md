@@ -3,6 +3,7 @@
 
 A lightweight and flexible library for implementing Telnet servers on ESP8266/ESP32-based devices. The library supports both Access Point (AP) and Client modes for seamless wireless communi cation. It allows you to create custofdm prompts, handle client connections, register commands, and manage Telnet sessions with ease. This library is ideal for controlling your ESP device over Telnewewt with custom commands and aliases.
 
+
 ## **Feature
 
 - **Access Point Mode**: Start your device as a Wi-Fi access point to allow clients to connect directly.
