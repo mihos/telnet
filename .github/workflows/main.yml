@@ -18,6 +18,7 @@ jobs:
       id: pr_version
       run: |
         pr_version=$(grep '^version=' library.properties | cut -d'=' -f2)
+        echo "PR version: $pr_version"
         echo "::set-output name=pr_version::$pr_version"
 
     # Fetch the main branch's library.properties
@@ -26,7 +27,9 @@ jobs:
         git fetch origin main
         git checkout origin/main -- library.properties
         main_version=$(grep '^version=' library.properties | cut -d'=' -f2)
+        echo "Main version: $main_version"
         echo "::set-output name=main_version::$main_version"
+      id: main_version
 
     # Compare Versions
     - name: Compare Versions
@@ -41,7 +44,7 @@ jobs:
 
     # Merge the Pull Request
     - name: Merge Pull Request
-      if: success()
+      if: ${{ steps.compare_versions.outcome == 'success' }}
       uses: actions/github-script@v6
       with:
         script: |
@@ -58,7 +61,7 @@ jobs:
 
     # Create a Release
     - name: Create GitHub Release
-      if: success()
+      if: ${{ steps.compare_versions.outcome == 'success' }}
       uses: actions/create-release@v1
       with:
         tag_name: v${{ steps.pr_version.outputs.pr_version }}
