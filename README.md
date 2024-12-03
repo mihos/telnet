@@ -198,4 +198,4 @@ Feel free to fork this repository and submit pull requests with improvements, bu
 
 ## **License**
 
-This library is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
