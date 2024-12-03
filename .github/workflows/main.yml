@@ -41,26 +41,35 @@ jobs:
             echo "PR version is different from the main branch version."
           fi
 
-           # Merge the Pull Request
+      # Merge the Pull Request
       - name: Merge Pull Request
         if: success() && steps.compare_versions.outcome == 'success'
         uses: actions/github-script@v6
         with:
           script: |
             const prNumber = context.payload.pull_request.number;
-            const prTitle = context.payload.pull_request.title;
-            const prBranch = context.payload.pull_request.head.ref;
       
-            console.log(`Merging PR #${prNumber} titled "${prTitle}" from branch "${prBranch}"`);
+            // Check if 'github' is available in the context and then merge the PR
+            if (github) {
+              const prTitle = context.payload.pull_request.title;
       
-            // Merge the PR using 'merge' API method
-            await github.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber,
-              commit_title: `Merge PR #${prNumber} - ${prTitle}`,
-              merge_method: 'squash',  // or 'merge'/'rebase' depending on your needs
-            });
+              console.log(`Merging PR #${prNumber} titled "${prTitle}"`);
+      
+              // Use the GitHub API to merge the pull request
+              await github.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                commit_title: `Merge PR #${prNumber} - ${prTitle}`,
+                merge_method: 'squash',  // Change to 'merge' or 'rebase' if needed
+              });
+            } else {
+              console.error('GitHub object not available.');
+              throw new Error('GitHub object not available.');
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 
       # Create a Release
