@@ -1,21 +1,21 @@
-name: Check Library Version, Merge PR, and Create Release
+name: Check Library Version, Validate, Merge PR, and Create Release
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  check-version-and-release:
+  validate-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Arduino Library Deploy
-        # You may pin to the exact commit or the version.
-        # uses: ktauchathuranga/arduino-library-deploy@51a9f8fb0e06cd8d19738aebc949bcc3734ceeb8
-        uses: ktauchathuranga/arduino-library-deploy@v1.0.0
+        uses: ktauchathuranga/arduino-library-deploy@v2.1.2
         with:
-          # GitHub token for API requests.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Explicitly pass it as an environment variable
