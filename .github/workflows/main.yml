@@ -8,15 +8,12 @@ jobs:
   validate-and-release:
     runs-on: ubuntu-latest
     permissions:
-      contents: read  # Required for reading code
-      pull-requests: write  # Required for merging PRs
-      issues: write  # Optional, for managing PR issues
-      repository-projects: write  # Optional
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Arduino Library Deploy
-        uses: ktauchathuranga/arduino-library-deploy@v2.1.1
+        uses: ktauchathuranga/arduino-library-deploy@v2.1.2
         with:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Use Personal Access Token if needed
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
