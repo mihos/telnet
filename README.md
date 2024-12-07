@@ -193,4 +193,3 @@ telnetServer.setPrompt("username", "ESP32_Device");
 ```
 
 ## **Contributing**
-
