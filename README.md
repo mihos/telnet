@@ -190,6 +190,4 @@ telnetServer.banner = "Custom Banner Text"; // WE HAVE A COOL BANNER SO DONT SET
 
 ```cpp
 telnetServer.setPrompt("username", "ESP32_Device");
-```
 
-## **Contributing**
