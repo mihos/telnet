@@ -178,7 +178,7 @@ void loop() {
 
 - **`showHelp(WiFiClient &client, const String &args)`**: Displays a list of all registered commands and their descriptions.
 
-## **Customization**
+# **Customization**
 
 - You can customize the banner that is displayed when a client connects by modifying the `banner` member variable. For example:
 
